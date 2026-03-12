@@ -77,7 +77,9 @@ router.post('/', checkAuth, upload.single('image'), async (req, res) => {
 
     const { data, error } = await supabase
       .from('forum')
-      .insert([{ poster_id, title, content, image_url, created_at: new Date(), modified_at: new Date() }]);
+      .insert([{ poster_id, title, content, image_url, created_at: new Date(), modified_at: new Date() }])
+      .select();
+
 
     if (error) return res.status(400).json({ error: error.message });
 
