@@ -1,15 +1,24 @@
 import { useState, useEffect } from "react";
 import ForumPost from "./ForumPosts";
 
-export default function ForumFeed({ searchQuery = "" }) {
+const API = import.meta.env.VITE_API_URL;
+
+export default function ForumFeed({ searchQuery = "", onError }) {
   const [posts, setPosts] = useState([]);
   const currentUser = JSON.parse(localStorage.getItem("user") || "null");
 
   function loadPosts() {
-    const url = currentUser?.id ? `/api/forum?userId=${currentUser.id}` : "/api/forum";
+    const url = currentUser?.id ? `${API}/api/forum?userId=${currentUser.id}` : `${API}/api/forum`;
     fetch(url)
-      .then(res => res.json())
-      .then(data => setPosts(data));
+      .then((res) => {
+        if (!res.ok) throw new Error(`Request failed (${res.status})`);
+        return res.json();
+      })
+      .then((data) => setPosts(Array.isArray(data) ? data : []))
+      .catch((err) => {
+        console.error('Forum feed fetch failed:', err);
+        onError?.('Could not load forum posts.');
+      });
   }
 
   useEffect(() => { loadPosts(); }, []);

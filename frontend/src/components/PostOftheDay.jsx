@@ -1,18 +1,27 @@
 import { useEffect, useState } from 'react';
-import { data } from 'react-router-dom';
+
+const API = import.meta.env.VITE_API_URL;
 
 export default function PostOfTheDay({ avatar = 'https://placehold.co/40x40?text=%40', reposts = 0 } = {}) {
   const [postOfTheDay, setPostOfTheDay] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('api/post-of-the-day')
-      .then((res) => res.json())
+    fetch(`${API}/api/post-of-the-day`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Request failed (${res.status})`);
+        return res.json();
+      })
       .then((data) => {
-        console.log('Post', data);
         setPostOfTheDay(data);
+      })
+      .catch((err) => {
+        console.error('Post of the day fetch failed:', err);
+        setError(err.message);
       });
   }, []);
 
+  if (error) return <div className="text-center text-sm text-gray-400">Could not load post of the day.</div>;
   if (!postOfTheDay) return <div>Loading...</div>;
 
   const { content, image_url, profiles } = postOfTheDay;
@@ -37,7 +46,7 @@ export default function PostOfTheDay({ avatar = 'https://placehold.co/40x40?text
         {/* Image */}
         {image_url && (
           <div className="rounded-2xl overflow-hidden mb-4">
-            <img src={profiles.image_url} alt="post" className="w-full max-h-64 object-cover" />
+            <img src={image_url} alt="post" className="w-full max-h-64 object-cover" />
           </div>
         )}
 
@@ -58,9 +67,9 @@ export default function PostOfTheDay({ avatar = 'https://placehold.co/40x40?text
                 d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z"
               />
             </svg>
-            {postOfTheDay.post_interactions.length >= 1000
-              ? `${(postOfTheDay.post_interactions.length / 1000).toFixed(1)}k`
-              : postOfTheDay.post_interactions.length}
+            {(postOfTheDay.post_interactions?.length || 0) >= 1000
+              ? `${((postOfTheDay.post_interactions?.length || 0) / 1000).toFixed(1)}k`
+              : postOfTheDay.post_interactions?.length || 0}
           </button>
 
           <button className="flex items-center gap-2 text-[#4ade80] font-semibold text-sm hover:opacity-75 transition-opacity">
