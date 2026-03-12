@@ -14,7 +14,10 @@ import newsdataRoutes from './routes/newsdata.js';
 import postofthedayRoutes from './routes/postoftheday.js';
 
 const app = express();
-app.use(cors());
+app.use(cors({
+	origin: 'https://reiceseco.vercel.app',
+	credentials: true
+}));
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
