@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
-// server.js
+
 import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/auth.js';
@@ -14,10 +14,16 @@ import newsdataRoutes from './routes/newsdata.js';
 import postofthedayRoutes from './routes/postoftheday.js';
 
 const app = express();
+
 app.use(cors({
-	origin: 'https://reiceseco.vercel.app',
-	credentials: true
+  origin: 'https://reiceseco.vercel.app',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+app.options('*', cors());
+
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
